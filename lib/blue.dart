@@ -24,6 +24,7 @@ class _BluetoothPageState extends State<BluetoothPage> {
   }
 
   Future<void> _startDiscovery() async {
+    await Bluetooth.requestPermissions();
     try {
       setState(() {
         isDiscovering = true;
@@ -80,8 +81,8 @@ class _BluetoothPageState extends State<BluetoothPage> {
               "Refresh",
               style: TextStyle(
                 color: isDiscovering == false
-                    ? Colors.white
-                    : Color.fromARGB(255, 204, 204, 204),
+                    ? const Color.fromARGB(255, 0, 0, 0)
+                    : Color.fromARGB(255, 74, 74, 74),
               ),
             ),
           ),
@@ -94,7 +95,7 @@ class _BluetoothPageState extends State<BluetoothPage> {
               style: TextStyle(
                   color: Bluetooth.isConnected
                       ? Colors.white
-                      : Color.fromARGB(255, 208, 207, 207)),
+                      : Color.fromARGB(255, 0, 0, 0)),
             ),
           )
         ],
@@ -127,14 +128,16 @@ class _BluetoothPageState extends State<BluetoothPage> {
                       splashColor: const Color.fromARGB(255, 8, 130, 229),
                       onTap: () async {
                         if (!Bluetooth.isConnected) {
-                          // await Bluetooth.connectToDevice(device.address);
-                          await BluetoothConnection.toAddress(device.address);
+                          await Bluetooth.connectToDevice(device.address);
+                          // await BluetoothConnection.toAddress(device.address);
                         }
-                        await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    HomeScreen(device.address)));
+                        if (Bluetooth.isConnected) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      HomeScreen(device.address)));
+                        }
                         // await BluetoothConnection.toAddress(device.address);
                       },
                     );

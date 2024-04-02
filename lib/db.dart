@@ -31,13 +31,16 @@ class DatabaseHelper {
   }
 
   Future<void> insertUserData(
-      {required int gauge,
-      required int distance,
-      required int elevation}) async {
+      {required List<int> gauge,
+      required List<int> distance,
+      required List<int> elevation}) async {
+    String g = gauge.toString();
+    String d = distance.toString();
+    String e = elevation.toString();
     final Database db = await database;
     await db.insert(
       'user_data',
-      {'gauge': gauge, 'distance': distance, 'elevation': elevation},
+      {'gauge': g, 'distance': d, 'elevation': e},
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }

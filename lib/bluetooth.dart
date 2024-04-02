@@ -14,6 +14,10 @@ class Bluetooth {
   static List<BluetoothDevice> devicesList = [];
   static List<String> answers = [];
 
+  static List<int> distance = [];
+  static List<int> gauge = [];
+  static List<int> elevation = [];
+
   static Future<void> startDiscovery() async {
     try {
       FlutterBluetoothSerial.instance.startDiscovery();
@@ -28,8 +32,9 @@ class Bluetooth {
     });
   }
 
-  static Future<void> connectToDevice(String address) async {
-    Bluetooth.connection = await BluetoothConnection.toAddress(address);
+  static Future<bool> connectToDevice(String address) async {
+    connection = await BluetoothConnection.toAddress(address);
+    print("connectiontoaddress!!!!!");
     String pass = '1234';
     pass = pass.trim();
     try {
@@ -37,42 +42,18 @@ class Bluetooth {
       Uint8List bytes = Uint8List.fromList(list);
       connection!.output.add(bytes);
       await connection!.output.allSent;
+      print("inside try and output is sent");
       isConnected = true;
       print('Connected to Device');
-      startListening();
-
-      // connection!.input!.listen((Uint8List data) {
-      //   // Concatenate the received data
-      //   receivedData += String.fromCharCodes(data);
-
-      //   // Check if the complete message is received
-      //   if (receivedData.endsWith('\n')) {
-      //     receivedData = receivedData.trim();
-
-      //     try {
-      //       print('Received Data: $receivedData');
-      //       double parsedData = int.parse(receivedData.trim()) / 10;
-      //       receivedDataList.add(parsedData);
-      //       print("parsed hehe: $parsedData");
-      //       print('Received Data packet: ${data.join(', ')}');
-      //       print(receivedDataList);
-      //       // Reset receivedData for the next message
-      //       receivedData = '';
-      //     } catch (e) {
-      //       print('Error parsing data: $receivedData');
-      //       // Handle the error as needed
-      //     }
-
-      // Reset receivedData for the next message
-      // receivedData = '';
-      // }
-      // }, onDone: () {
-      //   isConnected = false;
-      // });
-    } catch (exception, stackTrace) {
+      // startListening();
+    } catch (exception) {
       print('Cannot connect, exception occurred: $exception');
-      print('StackTrace: $stackTrace');
+      // print('StackTrace: $stackTrace');
     }
+    if (connection != null) {
+      return true;
+    }
+    return false;
   }
 
   void sendData(String data) async {
@@ -95,31 +76,28 @@ class Bluetooth {
   }
 
   static List<int> startListening() {
-    List<int> values = [];
-    connection!.input!.listen(
-      (Uint8List data) {
-        if (data.length >= 4) {
-          String rec = String.fromCharCodes(data);
-          print("rec: ${rec}");
-          List<String> lines = rec.split('\n');
+    List<int> values = [0, 0, 0];
+    connection!.input!.listen((Uint8List data) {
+      String rec = String.fromCharCodes(data);
+      print("rec: $rec");
+      List<String> lines = rec.split('\n');
 
-          if (lines.length >= 3) {
-            values[0] = int.tryParse(lines[0]) ?? 0;
-            values[1] = int.tryParse(lines[1]) ?? 0;
-            values[2] = int.tryParse(lines[2]) ?? 0;
-
-            print('Value 1: ${values[0]}');
-            print('Value 2: ${values[1]}');
-            print('Value 3: ${values[2]}');
-          }
-        }
-      },
-      onDone: () {
-        print('Connection closed');
-        connection = null;
-      },
-    );
-    return values;
+      for (var i = 0; i < lines.length && i < values.length; i++) {
+        values[i] = int.tryParse(lines[i].trim()) ?? 0;
+      }
+      distance.add(values[0]);
+      gauge.add(values[1]);
+      elevation.add(values[2]);
+      print('Value 1: ${values[0]}');
+      print('Value 2: ${values[1]}');
+      print('Value 3: ${values[2]}');
+    }, onDone: () {
+      print('Connection closed');
+      connection = null;
+    }, onError: (e) {
+      print("Error occurred: $e");
+    });
+    return values; // Return the list of values
   }
 
   static void stopBluetooth() {

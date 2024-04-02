@@ -18,7 +18,7 @@ class Report extends StatelessWidget {
             "assets/images/indianrailways.png",
             width: 199,
             height: 243,
-            color: Color.fromRGBO(
+            color: const Color.fromRGBO(
                 255, 255, 255, 0.19), // Adjust the opacity (0.0 to 1.0)
             colorBlendMode: BlendMode.modulate,
           ),
@@ -98,7 +98,7 @@ class Report extends StatelessWidget {
         // Read existing CSV data
         String existingCsvContent = await File(filePath).readAsString();
         List<List<dynamic>> existingCsvData =
-            CsvToListConverter().convert(existingCsvContent);
+            const CsvToListConverter().convert(existingCsvContent);
 
         // Combine existing and new data
         existingCsvData.addAll(newCsvData);
@@ -134,7 +134,7 @@ class Report extends StatelessWidget {
 
       // Show success message and open option
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Report saved to Documents!'),
           // action: SnackBarAction(
           //   label: 'Open',
@@ -148,7 +148,7 @@ class Report extends StatelessWidget {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Error Saving!'),
           // action: SnackBarAction(
           //   label: 'Open',

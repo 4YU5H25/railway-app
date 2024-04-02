@@ -13,7 +13,8 @@ class myapp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: HomeScreen(""),
+        // home: HomeScreen("00:22:12:00:4D:DF"),
+        home: BluetoothPage(),
         debugShowCheckedModeBanner: false,
         routes: {
           // '/HomeScreen': (context) => HomeScreen(),
