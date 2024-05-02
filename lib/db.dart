@@ -13,7 +13,7 @@ class DatabaseHelper {
   }
 
   Future<Database> initDatabase() async {
-    String path = join(await getDatabasesPath(), 'my_database.db');
+    String path = join(await getDatabasesPath(), 'data.db');
     return await openDatabase(
       path,
       version: 1,
@@ -21,26 +21,37 @@ class DatabaseHelper {
         await db.execute('''
         CREATE TABLE user_data(
           id INTEGER PRIMARY KEY,
+          Sleeper TEXT,
           Gauge TEXT,
           Distance TEXT,
-          Elevation TEXT
-        )
+          Elevation TEXT,
+          Temperature TEXT
+        );
       ''');
       },
     );
   }
 
-  Future<void> insertUserData(
-      {required List<int> gauge,
-      required List<int> distance,
-      required List<int> elevation}) async {
+  Future<void> insertUserData({
+    required String sleeper,
+    required List<double> gauge,
+    required List<double> distance,
+    required List<double> elevation,
+    required List<double> temperature,
+  }) async {
     String g = gauge.toString();
     String d = distance.toString();
     String e = elevation.toString();
     final Database db = await database;
     await db.insert(
       'user_data',
-      {'gauge': g, 'distance': d, 'elevation': e},
+      {
+        'Sleeper': sleeper,
+        'gauge': g,
+        'distance': d,
+        'elevation': e,
+        'temperature': temperature
+      },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
@@ -86,7 +97,7 @@ class _DatabaseTableState extends State<DatabaseTable> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Data Table'),
+        title: const Text('User Data Table'),
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -94,7 +105,7 @@ class _DatabaseTableState extends State<DatabaseTable> {
           child: DataTable(
             columns: getColumns(),
             rows: tableData != null ? getRows() : [],
-            dataRowHeight: 40.0, // Adjust the height between rows
+            dataRowMinHeight: 40.0, // Adjust the height between rows
           ),
         ),
       ),
@@ -103,14 +114,20 @@ class _DatabaseTableState extends State<DatabaseTable> {
 
   List<DataColumn> getColumns() {
     return [
-      DataColumn(
+      const DataColumn(
+        label: Text('Sleeper Number'),
+      ),
+      const DataColumn(
         label: Text('Gauge'),
       ),
-      DataColumn(
+      const DataColumn(
         label: Text('Distance'),
       ),
-      DataColumn(
+      const DataColumn(
         label: Text('Elevation'),
+      ),
+      const DataColumn(
+        label: Text('Temperature'),
       ),
     ];
   }
@@ -126,6 +143,9 @@ class _DatabaseTableState extends State<DatabaseTable> {
   List<DataCell> getCells(Map<String, dynamic> row) {
     return [
       DataCell(
+        Text('${row['Sleeper Number']}'),
+      ),
+      DataCell(
         Text('${row['Gauge']}'),
       ),
       DataCell(
@@ -134,23 +154,28 @@ class _DatabaseTableState extends State<DatabaseTable> {
       DataCell(
         Text('${row['Elevation']}'),
       ),
+      DataCell(
+        Text('${row['Temperature']}'),
+      ),
     ];
   }
 
   Future<Database> initDatabase() async {
-    String path = join(await getDatabasesPath(), 'my_database.db');
+    String path = join(await getDatabasesPath(), 'data.db');
     return await openDatabase(
       path,
       version: 1,
       onCreate: (Database db, int version) async {
         await db.execute('''
-          CREATE TABLE user_data(
-            id INTEGER PRIMARY KEY,
-            Gauge TEXT,
-            Distance TEXT,
-            Elevation TEXT
-          )
-        ''');
+        CREATE TABLE user_data(
+          id INTEGER PRIMARY KEY,
+          Sleeper TEXT,
+          Gauge TEXT,
+          Distance TEXT,
+          Elevation TEXT,
+          Temperature TEXT
+        );
+      ''');
       },
     );
   }

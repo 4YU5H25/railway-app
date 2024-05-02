@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:railways1/db.dart';
+import 'package:railways1/main.dart';
 
 class Report extends StatelessWidget {
   @override
@@ -59,18 +59,22 @@ class Report extends StatelessWidget {
         await DatabaseHelper().getAllUserData();
 
     List<String> header = [
+      'Sleeper Number',
       'Gauge',
       'Distance',
       'Elevation',
+      'Temperature'
     ];
 
     // Generate CSV data for new entries only
     List<List<String>> newCsvData = [];
     for (var userData in userDataList) {
       newCsvData.add([
-        userData['Gauge'],
+        userData['Sleeper'].toString(),
+        userData['Gauge'].toString(),
         userData['Distance'].toString(),
         userData['Elevation'].toString(),
+        userData['Temperature'].toString(),
       ]);
     }
 

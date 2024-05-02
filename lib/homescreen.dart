@@ -21,17 +21,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _name = TextEditingController();
 
   bool receiving = true;
-  List<int> distance = [0];
-  List<int> gauge = [0];
-  List<int> elevation = [0];
-  List<int> receivedData = [0];
+  List<double> distance = [0];
+  List<double> gauge = [0];
+  List<double> elevation = [0];
+  List<double> receivedData = [0];
 
   DatabaseHelper db = DatabaseHelper();
 
   @override
   void initState() {
     super.initState();
-    // Bluetooth.connectToDevice(widget.address);
+    db.initDatabase().then((value) => null);
   }
 
   @override
@@ -133,6 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     shadowColor: Colors.transparent,
                                   ),
                                   onPressed: () async {
+                                    await db.initDatabase();
                                     print("Start Button Pressed");
                                     await Bluetooth.requestPermissions();
                                     if (Bluetooth.isConnected == false) {
@@ -147,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         .showSnackBar(const SnackBar(
                                       content: Text('Machine reading started'),
                                     ));
-                                    List<int> values = [];
+                                    List<double> values = [];
                                     setState(() {
                                       values = Bluetooth.startListening();
                                     });
@@ -160,7 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       gauge.add(values[1]);
                                       elevation.add(values[2]);
                                     });
-                                    
                                   },
                                   child: const Text("START")),
                             ),
@@ -189,7 +189,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemCount: Bluetooth.distance.length,
                               itemBuilder: (context, index) {
                                 return ListTile(
-                                  title: Text("Distance: ${Bluetooth.distance[index]}"),
+                                  title: Text(
+                                      "Distance: ${Bluetooth.distance[index]}"),
                                 );
                               },
                             ),
@@ -218,7 +219,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemCount: Bluetooth.gauge.length,
                               itemBuilder: (context, index) {
                                 return ListTile(
-                                  title: Text("Gauge: ${Bluetooth.gauge[index]}"),
+                                  title:
+                                      Text("Gauge: ${Bluetooth.gauge[index]}"),
                                 );
                               },
                             ),
@@ -247,7 +249,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemCount: Bluetooth.elevation.length,
                               itemBuilder: (context, index) {
                                 return ListTile(
-                                  title: Text("Elevation: ${Bluetooth.elevation[index]}"),
+                                  title: Text(
+                                      "Elevation: ${Bluetooth.elevation[index]}"),
                                 );
                               },
                             ),
@@ -291,20 +294,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           print(distance);
                           print(gauge);
                           print(elevation);
-                          Bluetooth.stopBluetooth();
                           await db.insertUserData(
-                              distance: Bluetooth.distance,
-                              gauge: Bluetooth.gauge,
-                              elevation: Bluetooth.elevation);
+                            sleeper: _name.text,
+                            distance: Bluetooth.distance,
+                            gauge: Bluetooth.gauge,
+                            elevation: Bluetooth.elevation,
+                            temperature: [0],
+                          );
                           setState(() {
                             receiving = true;
                           });
-                          Navigator.push(
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => Report(),
                             ),
                           );
+                          // Bluetooth.stopBluetooth();
                         },
                         child: const Text("STOP")),
                   ),

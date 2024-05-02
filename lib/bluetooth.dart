@@ -14,9 +14,10 @@ class Bluetooth {
   static List<BluetoothDevice> devicesList = [];
   static List<String> answers = [];
 
-  static List<int> distance = [];
-  static List<int> gauge = [];
-  static List<int> elevation = [];
+  static List<double> distance = [];
+  static List<double> gauge = [];
+  static List<double> temperature = [];
+  static List<double> elevation = [];
 
   static Future<void> startDiscovery() async {
     try {
@@ -75,22 +76,24 @@ class Bluetooth {
     }
   }
 
-  static List<int> startListening() {
-    List<int> values = [0, 0, 0];
+  static List<double> startListening() {
+    List<double> values = [0, 0, 0, 0];
     connection!.input!.listen((Uint8List data) {
       String rec = String.fromCharCodes(data);
       print("rec: $rec");
-      List<String> lines = rec.split('\n');
+      List<String> lines = rec.split('\r\n');
 
       for (var i = 0; i < lines.length && i < values.length; i++) {
-        values[i] = int.tryParse(lines[i].trim()) ?? 0;
+        values[i] = double.tryParse(lines[i].trim()) ?? 0;
       }
       distance.add(values[0]);
       gauge.add(values[1]);
       elevation.add(values[2]);
+      temperature.add(values[3]);
       print('Value 1: ${values[0]}');
       print('Value 2: ${values[1]}');
       print('Value 3: ${values[2]}');
+      print('Value 3: ${values[3]}');
     }, onDone: () {
       print('Connection closed');
       connection = null;
