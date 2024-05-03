@@ -42,6 +42,7 @@ class DatabaseHelper {
     String g = gauge.toString();
     String d = distance.toString();
     String e = elevation.toString();
+    String t = temperature.toString();
     final Database db = await database;
     await db.insert(
       'user_data',
@@ -50,7 +51,7 @@ class DatabaseHelper {
         'gauge': g,
         'distance': d,
         'elevation': e,
-        'temperature': temperature
+        'temperature': t,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );

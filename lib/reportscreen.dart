@@ -5,50 +5,45 @@ import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:railways1/db.dart';
-import 'package:railways1/main.dart';
 
 class Report extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          Image.asset(
-            "assets/images/indianrailways.png",
-            width: 199,
-            height: 243,
-            color: const Color.fromRGBO(
-                255, 255, 255, 0.19), // Adjust the opacity (0.0 to 1.0)
-            colorBlendMode: BlendMode.modulate,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: const AssetImage("assets/images/indianrailways.png"),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.white.withOpacity(0.19),
+              BlendMode.modulate,
+            ),
           ),
-          Center(
-            child: Positioned(
-              top: 0,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  // primary: Colors.transparent,
-                  elevation: 3,
-                  backgroundColor: Colors.deepOrange,
-                ),
-                onPressed: () async {
-                  await _generateAndDownloadCSV(context);
-                  // Add your functionality for the button here
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => DatabaseTable()));
-                  print("Generate Report Button Pressed");
-                },
-                child: const Text(
-                  "Generate Report",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 19,
-                  ),
-                ),
+        ),
+        child: Center(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              elevation: 3,
+              backgroundColor: Colors.deepOrange,
+            ),
+            onPressed: () async {
+              await _generateAndDownloadCSV(context);
+              // Add your functionality for the button here
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => DatabaseTable()),
+              );
+              print("Generate Report Button Pressed");
+            },
+            child: const Text(
+              "Generate Report",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 19,
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -79,20 +74,9 @@ class Report extends StatelessWidget {
     }
 
     // Get the path to the existing CSV file
-    // Directory? downloadsDir = await getExternalStorageDirectory();
-    // String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    // String filePath = '${downloadsDir!.path}/Report_$timestamp.csv';
-
-    // Get the app's documents directory
-
     Directory documentsDir = await getApplicationDocumentsDirectory();
-    // String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    String timestamp = (DateTime.now()).toString();
-    print("timestamp: $timestamp");
-
+    String timestamp = DateTime.now().toString();
     String filePath = '${documentsDir.path}/Report_$timestamp.csv';
-    print("DIrecturyyyy: $documentsDir");
-    print("filleee pathhh: $filePath");
 
     try {
       // Check if the file exists
@@ -124,48 +108,27 @@ class Report extends StatelessWidget {
 
       String documentsFolderPath = '/storage/emulated/0/Documents';
       Directory? externalDir = await getExternalStorageDirectory();
-      // String newFilePath = '${externalDir!.path}/Report_$timestamp.csv';
-      // Generate a timestamp for the filename
-
-      // Create a filename with the prefix "Report" + date and time
       String fileName = 'Report_$timestamp.csv';
 
       String newFilePath = '$documentsFolderPath/$fileName';
 
       await File(filePath).copy(newFilePath);
-      print("neww file pathh: $newFilePath");
       await File(filePath).delete();
 
-      // Show success message and open option
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Report saved to Documents!'),
-          // action: SnackBarAction(
-          //   label: 'Open',
-          //   onPressed: () async {
-          //     // OpenFile.open(newFilePath);
-          //     await OpenAppFile.open(newFilePath, mimeType: 'text/csv', uti: 'public.comma-separated-values-text', locate: false);
-          //     print("opened!!!");
-          //   },
-          // ),
         ),
       );
     } catch (e) {
+      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Error Saving!'),
-          // action: SnackBarAction(
-          //   label: 'Open',
-          //   onPressed: () async {
-          //     // OpenFile.open(newFilePath);
-          //     await OpenAppFile.open(newFilePath, mimeType: 'text/csv', uti: 'public.comma-separated-values-text', locate: false);
-          //     print("opened!!!");
-          //   },
-          // ),
         ),
       );
       print("Error saving CSV: $e");
-      // Handle the error and inform the user
     }
   }
 }

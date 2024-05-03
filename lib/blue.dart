@@ -15,7 +15,6 @@ class BluetoothPage extends StatefulWidget {
 class _BluetoothPageState extends State<BluetoothPage> {
   List<BluetoothDevice> _devicesList = [];
   var isDiscovering = false;
-  Timer? _stopScanTimer;
 
   @override
   void initState() {
@@ -46,14 +45,6 @@ class _BluetoothPageState extends State<BluetoothPage> {
     });
 
     // Schedule stop scan after 5 seconds
-    _stopScanTimer = Timer(const Duration(seconds: 5), () {
-      if (isDiscovering) {
-        _stopDiscovery();
-        setState(() {
-          isDiscovering = false;
-        });
-      }
-    });
   }
 
   void _stopDiscovery() {

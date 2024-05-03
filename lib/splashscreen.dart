@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:railways1/bluetooth.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class splashscreenfinal extends StatefulWidget {

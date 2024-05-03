@@ -86,7 +86,7 @@ class Bluetooth {
       for (var i = 0; i < lines.length && i < values.length; i++) {
         values[i] = double.tryParse(lines[i].trim()) ?? 0;
       }
-      distance.add(values[0]);
+      distance.add(values[0] ?? 0);
       gauge.add(values[1]);
       elevation.add(values[2]);
       temperature.add(values[3]);

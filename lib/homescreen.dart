@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,10 +21,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _name = TextEditingController();
 
   bool receiving = true;
-  List<double> distance = [0];
-  List<double> gauge = [0];
-  List<double> elevation = [0];
-  List<double> receivedData = [0];
+  List<double> distance = [];
+  List<double> gauge = [];
+  List<double> elevation = [];
+  List<double> temperature = [];
+  List<double> receivedData = [];
 
   DatabaseHelper db = DatabaseHelper();
 
@@ -148,18 +149,43 @@ class _HomeScreenState extends State<HomeScreen> {
                                         .showSnackBar(const SnackBar(
                                       content: Text('Machine reading started'),
                                     ));
-                                    List<double> values = [];
-                                    setState(() {
-                                      values = Bluetooth.startListening();
-                                    });
+                                    // List<double> values = [];
+
+                                    // setState(() {
+                                    //   values = Bluetooth.startListening();
+                                    // });
 
                                     // Update receivedData with new values
 
                                     setState(() {
-                                      receivedData = values;
-                                      distance.add(values[0]);
-                                      gauge.add(values[1]);
-                                      elevation.add(values[2]);
+                                      // receivedData = values;
+                                      // distance.add(values[0]);
+                                      // gauge.add(values[1]);
+                                      // elevation.add(values[2]);
+                                    });
+                                    Bluetooth.connection!.input!.listen(
+                                        (Uint8List data) {
+                                      List<double> values = [0, 0, 0, 0];
+                                      String rec = String.fromCharCodes(data);
+                                      print("rec: $rec");
+                                      List<String> lines = rec.split('\r\n');
+
+                                      for (var i = 0;
+                                          i < lines.length && i < values.length;
+                                          i++) {
+                                        values[i] =
+                                            double.tryParse(lines[i].trim()) ??
+                                                0;
+                                      }
+                                      updateLists(values);
+                                      print('Value 1: ${values[0]}');
+                                      print('Value 2: ${values[1]}');
+                                      print('Value 3: ${values[2]}');
+                                      print('Value 3: ${values[3]}');
+                                    }, onDone: () {
+                                      print('Done');
+                                    }, onError: (e) {
+                                      print("Error occurred: $e");
                                     });
                                   },
                                   child: const Text("START")),
@@ -186,11 +212,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 99,
                             color: CupertinoColors.systemGrey4,
                             child: ListView.builder(
-                              itemCount: Bluetooth.distance.length,
+                              itemCount: distance.length,
                               itemBuilder: (context, index) {
                                 return ListTile(
-                                  title: Text(
-                                      "Distance: ${Bluetooth.distance[index]}"),
+                                  title: Text("Distance: ${distance[index]}"),
                                 );
                               },
                             ),
@@ -216,11 +241,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 99,
                             color: CupertinoColors.systemGrey4,
                             child: ListView.builder(
-                              itemCount: Bluetooth.gauge.length,
+                              itemCount: gauge.length,
                               itemBuilder: (context, index) {
                                 return ListTile(
-                                  title:
-                                      Text("Gauge: ${Bluetooth.gauge[index]}"),
+                                  title: Text("Gauge: ${gauge[index]}"),
                                 );
                               },
                             ),
@@ -246,11 +270,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 99,
                             color: CupertinoColors.systemGrey4,
                             child: ListView.builder(
-                              itemCount: Bluetooth.elevation.length,
+                              itemCount: elevation.length,
                               itemBuilder: (context, index) {
                                 return ListTile(
-                                  title: Text(
-                                      "Elevation: ${Bluetooth.elevation[index]}"),
+                                  title: Text("Elevation: ${elevation[index]}"),
                                 );
                               },
                             ),
@@ -296,15 +319,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           print(elevation);
                           await db.insertUserData(
                             sleeper: _name.text,
-                            distance: Bluetooth.distance,
-                            gauge: Bluetooth.gauge,
-                            elevation: Bluetooth.elevation,
-                            temperature: [0],
+                            distance: distance,
+                            gauge: gauge,
+                            elevation: elevation,
+                            temperature: temperature,
                           );
                           setState(() {
-                            receiving = true;
+                            receiving = false;
                           });
-                          await Navigator.push(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => Report(),
@@ -321,5 +344,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void updateLists(List<double> values) {
+    setState(() {
+      if (values.length >= 4) {
+        distance.add(values[0]);
+        gauge.add(values[1]);
+        elevation.add(values[2]);
+        temperature.add(values[3]);
+      }
+    });
   }
 }
